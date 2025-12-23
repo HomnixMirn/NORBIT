@@ -17,22 +17,35 @@ def personal_account(request:Request):
     else:
         return Response('Неверный метод',status=status.HTTP_406_NOT_ACCEPTABLE)
     
-def set_icon_profile(request:Request):
-    if request.method == 'POST':
+def set_icon_profile(request: Request):
+    if request.method != 'POST':
+        return Response('Неверный метод', status=405)
+
+    try:
         user = request.user
-        data = request.data
-        try:
-            profile = Profile.objects.get(user=user)
-            profile.icon.delete()
-            profile.icon = data['icon']
-            profile.save()
-            serializer = ProfileSerializer(profile)
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        except:
-            return Response('Ошибка получения данных',status=status.HTTP_406_NOT_ACCEPTABLE)
-    else:
-        return Response('Неверный метод',status=status.HTTP_406_NOT_ACCEPTABLE)
-    
+        profile = Profile.objects.get(user=user)
+
+        icon = request.FILES.get('icon')
+        if not icon:
+            return Response('Файл не передан', status=400)
+
+        if profile.icon:
+            profile.icon.delete(save=False)
+
+        profile.icon = icon
+        profile.save()
+
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data, status=200)
+
+    except Profile.DoesNotExist:
+        return Response('Профиль не найден', status=404)
+
+    except Exception as e:
+        print(e)
+        return Response(str(e), status=500)
+
+
 def set_name_profile(request:Request):
     if request.method == 'POST':
         user = request.user

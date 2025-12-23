@@ -26,3 +26,8 @@ def verify_email(request: Request):
 @token_required
 def personal_account(request:Request):
     return account.personal_account(request)
+
+@api_view(['POST'])
+@token_required
+def set_icon_profile_view(request: Request):
+    return account.set_icon_profile(request)

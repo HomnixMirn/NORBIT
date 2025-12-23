@@ -91,10 +91,9 @@ const handleVerify = async (e: React.FormEvent) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg z-50 w-[340px]">
         <div className="flex direction column items-center flex-col">
-          <img src="/images/logo.svg" alt="" className="w-[50px] h-[50px]" />
-          <img src="/images/Expie.svg" alt="" className="w-[100px]" />
+          <img src="/image/Frame.svg"alt="" className="w-[50px] h-[50px]" />
           <h2 className="3xl font-bold">Чувствуй себя как</h2>
-          <h2 className="3xl font-bold" style={{color: "#7F9F7C"}}>дома!</h2>
+          <h2 className="3xl font-bold" style={{color: "#FF3A44"}}>дома!</h2>
         </div>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {success && <div className="text-green-500 mb-4">{success}</div>}
@@ -175,7 +174,7 @@ const handleVerify = async (e: React.FormEvent) => {
           
           <button
             onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-[120px]"
+            className=" bg-linear-to-r from-[#FF3A44] to-[#992329] text-white px-4 py-2 rounded hover:bg-gray-600 w-[120px]"
           >
             Закрыть
           </button>
@@ -187,7 +186,7 @@ const handleVerify = async (e: React.FormEvent) => {
           <button
               type="button"
               onClick={onLoginOpen} // Открываем форму регистрации
-              className=" text-[#658263]"
+              className="text-[#7E95AA] hover:text-[#FF3A44]"
             >
               Вход
             </button>

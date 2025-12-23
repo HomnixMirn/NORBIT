@@ -48,10 +48,9 @@ export default function LoginForm({
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg z-50 w-[340px]">
         <div className="auth flex direction column items-center flex-col">
-          <img src="/images/logo.svg" alt="" className="w-[50px] h-[50px]" />
-          <img src="/images/Expie.svg" alt="" className="w-[100px]" />
+          <img src="/image/Frame.svg" alt="" className="w-[50px] h-[50px]" />
           <h2 className="3xl font-bold">Добро пожаловать,</h2>
-          <h2 className="font-bold" style={{ color: "#7F9F7C" }}>
+          <h2 className="font-bold" style={{ color: "#FF3A44" }}>
             путник!
           </h2>
         </div>
@@ -99,7 +98,7 @@ export default function LoginForm({
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 w-[120px]"
+              className=" bg-linear-to-r from-[#FF3A44] to-[#992329] text-white px-4 py-2 rounded hover:bg-gray-600 w-[120px]"
             >
               Закрыть
             </button>
@@ -109,7 +108,7 @@ export default function LoginForm({
               <button
                 type="button"
                 onClick={onRegisterOpen} // Открываем форму регистрации
-                className=" text-[#658263]"
+                className=" text-[#7E95AA] hover:text-[#FF3A44]"
               >
                 Регистрация
               </button>
