@@ -1,65 +1,36 @@
+// app/personal-account/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import axi from "@/utils/api";
-import { API_URL, MEDIA_URL } from "@/index";
-import AvatarUpload from "@/components/createAvatar/changeAvatar";
+import { useState } from "react";
 import { useUser } from "@/components/UserContext/UserContext";
+import ProfileBackground from "@/components/Profile/ProfileBackground/ProfileBackground";
+import ProfileAvatar from "@/components/Profile/ProfileAvatar/ProfileAvatar";
+import ProfileInfo from "@/components/Profile/ProfileInfo/ProfileInfo";
+import ProfileProducts from "@/components/Profile/ProfileProducts/ProfileProducts";
+import SnowBackground from "@/components/SnowBackground";
+
 export default function PersonalAccountUser() {
-  const router = useRouter();
+  const { user, setUser } = useUser();
+  const [backgroundUrl, setBackgroundUrl] = useState("/images/bg-lk.jpg");
 
-  const [user, setUser] = useState<any>(null);
-  const {avatarUrl, setAvatarUrl, fetchUser } = useUser();
-  const [isChangeAvatarVisible, setIsChangeAvatarVisible] = useState(false);
+  if (!user) return null;
 
-  // Проверка токена + загрузка пользователя
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/");
-      return;
-    }
-
-    axi
-      .get(`${API_URL}personal_account`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setUser(res.data);
-
-        if (res.data.icon) {
-          setAvatarUrl(MEDIA_URL + res.data.icon);
-        }
-      })
-      .catch(() => {
-        router.push("/");
-      });
-  }, [router]);
+  // Пример продуктов
+  const products = [
+    { id: 1, title: "Lookbook Chanel N5", category: "Cosmetics", image: "/images/product1.jpg" },
+    { id: 2, title: "Lookbook Versace", category: "Fashion", image: "/images/product2.jpg" },
+  ];
 
   return (
-    <div className="bg-[url('/images/bg-lk.jpg')] bg-cover min-h-screen flex justify-center items-start pt-20">
-      <div className="flex flex-col items-center bg-white rounded-[24px] p-10 shadow-lg">
-        <Image
-            src={avatarUrl}
-            alt="avatar"
-            width={120}
-            height={120}
-            className="rounded-full cursor-pointer bg-gray-200"
-            onClick={() => setIsChangeAvatarVisible(true)}
-        />
-
-        <h1 className="mt-4 text-2xl font-bold">
-          {user?.user?.username}
-        </h1>
-
-        {isChangeAvatarVisible && (
-          <AvatarUpload
-            onClose={() => setIsChangeAvatarVisible(false)}
-          />
-        )}
+    <div className="relative min-h-screen">
+      <SnowBackground />
+        <div className="w-max-[1980px] flex flex-col items-center">
+          <div className="flex items-center w-[1450px] mt-[20px]">
+            <ProfileBackground backgroundUrl={backgroundUrl} setBackgroundUrl={setBackgroundUrl} />
+          </div>
+          <ProfileInfo user={user} setUser={setUser} />
+          <ProfileProducts products={products} isSeller={user.is_seller} />
+        </div>
       </div>
-    </div>
   );
 }

@@ -16,204 +16,242 @@ export default function RegisterForm({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [role, setRole] = useState<"buyer" | "seller">("buyer");
+
+  // Для продавца
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [address, setAddress] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (password !== confirmPassword) {
-    setError("Пароли не совпадают");
-    return;
-  }
+    if (password !== confirmPassword) {
+      setError("Пароли не совпадают");
+      return;
+    }
 
-  try {
-    const response = await fetch(`${API_URL}register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      const payload: any = {
         login,
         email,
         password,
         password2: confirmPassword,
-      }),
-    });
+        is_seller: role === "seller",
+      };
 
-    const data = await response.text();
+      if (role === "seller") {
+        payload.first_name = firstName;
+        payload.last_name = lastName;
+        payload.middle_name = middleName;
+        payload.address = address;
+      }
 
-    if (response.ok) {
-      setError(null);
-      setSuccess("Введите код из письма");
-      setStep("verify");
-    } else {
-      setError(data || "Ошибка регистрации");
+      const response = await fetch(`${API_URL}register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.text();
+
+      if (response.ok) {
+        setError(null);
+        setSuccess("Введите код из письма");
+        setStep("verify");
+      } else {
+        setError(data || "Ошибка регистрации");
+      }
+    } catch {
+      setError("Ошибка при отправке запроса");
     }
-  } catch {
-    setError("Ошибка при отправке запроса");
-  }
-};
+  };
 
-const handleVerify = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    const response = await fetch(`${API_URL}verify-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        code,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_URL}verify-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          code,
+        }),
+      });
 
-    const data = await response.text();
+      const data = await response.text();
 
-    if (response.ok) {
-      setSuccess("Почта подтверждена");
-      setError(null);
+      if (response.ok) {
+        setSuccess("Почта подтверждена");
+        setError(null);
 
-      setTimeout(() => {
-        onClose();
-        onLoginOpen();
-      }, 1000);
-    } else {
-      setError(data || "Неверный код");
+        setTimeout(() => {
+          onClose();
+          onLoginOpen();
+        }, 1000);
+      } else {
+        setError(data || "Неверный код");
+      }
+    } catch {
+      setError("Ошибка подтверждения");
     }
-  } catch {
-    setError("Ошибка подтверждения");
-  }
-};
-
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg z-50 w-[340px]">
-        <div className="flex direction column items-center flex-col">
-          <img src="/image/Frame.svg"alt="" className="w-[50px] h-[50px]" />
-          <h2 className="3xl font-bold">Чувствуй себя как</h2>
-          <h2 className="3xl font-bold" style={{color: "#FF3A44"}}>дома!</h2>
+        <div className="flex flex-col items-center mb-4">
+          <img src="/image/Frame.svg" alt="" className="w-[50px] h-[50px]" />
+          <h2 className="text-2xl font-bold">Чувствуй себя как</h2>
+          <h2 className="text-2xl font-bold" style={{ color: "#FF3A44" }}>дома!</h2>
         </div>
+
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {success && <div className="text-green-500 mb-4">{success}</div>}
+
         {step === "register" && (
-          <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-2 text-gray-500"
-              htmlFor="login"
-            >
-            </label>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <input
-              type="login"
-              id="login"
-              className="w-full p-2 border border-gray-300 rounded text-black placeholder:text-black bg-[#ECEBE4]"
-              placeholder="Введите логин"
+              type="text"
+              placeholder="Логин"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
+              className="w-full p-2 border rounded bg-[#ECEBE4]"
               required
             />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-2 text-gray-500"
-              htmlFor="email"
-            >
-            </label>
             <input
               type="email"
-              id="email"
-              className="w-full p-2 border border-gray-300 rounded text-black placeholder:text-black bg-[#ECEBE4]"
-              placeholder="Введите email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 border rounded bg-[#ECEBE4]"
               required
             />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-2 text-gray-500"
-              htmlFor="password"
-            >
-            </label>
             <input
               type="password"
-              id="password"
-              className="w-full p-2 border border-gray-300 rounded  text-black placeholder:text-black bg-[#ECEBE4]"
-              placeholder="Введите пароль"
+              placeholder="Пароль"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 border rounded bg-[#ECEBE4]"
               required
             />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-2 text-gray-500 "
-              htmlFor="confirmPassword"
-            >
-            </label>
             <input
               type="password"
-              id="confirmPassword"
-              className="w-full p-2 border border-gray-300 rounded text-black placeholder:text-black bg-[#ECEBE4]"
               placeholder="Повторите пароль"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-2 border rounded bg-[#ECEBE4]"
               required
             />
-          </div>
-          <div className="flex flex-col h-[110px] items-center justify-evenly">
-            <button
-              type="submit"
-              className="bg-[#ECEBE4] text-black px-4 py-2 rounded hover:bg-gray-300 w-[120px]"
-            >
-              Регистрация
-            </button>
 
-          
-          <button
-            onClick={onClose}
-            className=" bg-linear-to-r from-[#FF3A44] to-[#992329] text-white px-4 py-2 rounded hover:bg-gray-600 w-[120px]"
-          >
-            Закрыть
-          </button>
-        </div>
-        <div className="flex flex-col items-center ">
-          <p>Есть аккаунт?</p>
-          <p>Тогда заходи</p>
-          <p>не стесняйся!</p>
-          <button
-              type="button"
-              onClick={onLoginOpen} // Открываем форму регистрации
-              className="text-[#7E95AA] hover:text-[#FF3A44]"
-            >
-              Вход
-            </button>
-        </div>
-        </form>
-        )}
-        {step === "verify" && (
-          <form onSubmit={handleVerify}>
-            <div className="mb-4">
-              <input
-                type="text"
-                className="w-full p-2 border rounded bg-[#ECEBE4] text-black"
-                placeholder="Введите код из письма"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-              />
+            <div>
+              <p className="mb-2 font-medium text-gray-500">Я хочу зарегистрироваться как:</p>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="buyer"
+                    checked={role === "buyer"}
+                    onChange={() => setRole("buyer")}
+                  />
+                  Покупатель
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="seller"
+                    checked={role === "seller"}
+                    onChange={() => setRole("seller")}
+                  />
+                  Продавец
+                </label>
+              </div>
             </div>
 
+            {role === "seller" && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Имя"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full p-2 border rounded bg-[#ECEBE4]"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Фамилия"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full p-2 border rounded bg-[#ECEBE4]"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Отчество (если есть)"
+                  value={middleName}
+                  onChange={(e) => setMiddleName(e.target.value)}
+                  className="w-full p-2 border rounded bg-[#ECEBE4]"
+                />
+                <input
+                  type="text"
+                  placeholder="Адрес компании"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full p-2 border rounded bg-[#ECEBE4]"
+                  required
+                />
+              </>
+            )}
+
+            <div className="flex gap-2 mt-2">
+              <button
+                type="submit"
+                className="w-full px-4 py-2 bg-[#ECEBE4] rounded hover:bg-gray-300"
+              >
+                Регистрация
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full px-4 py-2 bg-linear-to-r from-[#FF3A44] to-[#992329] text-white rounded"
+              >
+                Закрыть
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center mt-2">
+              <p>Есть аккаунт? <button onClick={onLoginOpen} className="text-[#7E95AA] hover:text-[#FF3A44]">Вход</button></p>
+            </div>
+          </form>
+        )}
+
+        {step === "verify" && (
+          <form onSubmit={handleVerify}>
+            <input
+              type="text"
+              placeholder="Введите код из письма"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full p-2 border rounded bg-[#ECEBE4]"
+              required
+            />
             <button
               type="submit"
-              className="bg-[#ECEBE4] text-black px-4 py-2 rounded w-full"
+              className="w-full mt-2 px-4 py-2 bg-[#ECEBE4] rounded hover:bg-gray-300"
             >
               Подтвердить
             </button>
-          </form> 
-          )}
+          </form>
+        )}
       </div>
     </div>
   );

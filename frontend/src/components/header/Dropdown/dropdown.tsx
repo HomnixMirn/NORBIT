@@ -46,11 +46,11 @@ export default function Dropdown({ avatarUrl, onLogout }: DropdownProps) {
           className="flex items-center justify-center w-14 h-14 rounded-full hover:bg-white/10 transition focus:outline-none"
         >
           <img
-            src={avatarUrl || "/image/default-avatar.png"}
+            src={avatarUrl || "/images/default-avatar.png"}
             alt="Аватар"
             className="w-10 h-10 rounded-full"
             onError={(e) => {
-              e.currentTarget.src = "/image/default-avatar.png";
+              e.currentTarget.src = "/images/default-avatar.png";
             }}
           />
         </button>
@@ -79,6 +79,7 @@ export default function Dropdown({ avatarUrl, onLogout }: DropdownProps) {
                 onClick={() => {
                   setOpen(false);
                   onLogout();
+                  window.location.href = "/"; // переходим на главную
                 }}
                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
               >

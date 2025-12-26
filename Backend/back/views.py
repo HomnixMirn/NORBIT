@@ -31,3 +31,8 @@ def personal_account(request:Request):
 @token_required
 def set_icon_profile_view(request: Request):
     return account.set_icon_profile(request)
+
+@api_view(['POST'])
+@token_required
+def update_profile_view(request: Request):
+    return account.update_profile(request)

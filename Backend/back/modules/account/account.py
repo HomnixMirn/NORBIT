@@ -62,3 +62,24 @@ def set_name_profile(request:Request):
             return Response('Ошибка получения данных',status=status.HTTP_406_NOT_ACCEPTABLE)
     else:
         return Response('Неверный метод',status=status.HTTP_406_NOT_ACCEPTABLE)
+
+def update_profile(request):
+    if request.method != 'POST':
+        return Response('Неверный метод', status=405)
+
+    user = request.user
+    data = request.data
+
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        return Response('Профиль не найден', status=404)
+
+    # обновляем ТОЛЬКО телефон
+    phone = data.get('phone')
+    if phone is not None:
+        profile.phone = phone
+
+    profile.save()
+    serializer = ProfileSerializer(profile)
+    return Response(serializer.data, status=200)

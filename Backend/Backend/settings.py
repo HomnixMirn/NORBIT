@@ -137,5 +137,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'm1m1st0r4g@gmail.com'
 EMAIL_HOST_PASSWORD = 'bsblzxfzhuafcvie'
-MEDIA_URL = '/avatars/'
-MEDIA_ROOT = BASE_DIR / 'media/avatars'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media/'

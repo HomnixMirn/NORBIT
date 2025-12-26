@@ -15,26 +15,21 @@ export default function Header() {
   const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true); // флаг загрузки пользователя
 
   const { user, avatarUrl, setAvatarUrl, fetchUser } = useUser();
 
-  // Проверка токена и получение данных пользователя
+  // Загружаем пользователя при маунте
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setAuthChecked(true);
-      return;
-    }
-
-    fetchUser(token)
-      .finally(() => setAuthChecked(true));
+    fetchUser().finally(() => setLoading(false));
   }, [fetchUser]);
 
   const handleLoginSuccess = async (token: string) => {
     localStorage.setItem("token", token);
-    await fetchUser(token); // обновляет user и avatarUrl в контексте
+    setLoading(true);
+    await fetchUser();
+    setLoading(false);
     setShowLogin(false);
   };
 
@@ -42,25 +37,23 @@ export default function Header() {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        await fetch("/api/logout"); // или твой эндпоинт
+        await fetch("/api/logout"); // или свой эндпоинт
       } finally {
         localStorage.removeItem("token");
-        setAvatarUrl(null); // сброс аватарки
+        setAvatarUrl("/images/default-avatarLK.png");
       }
     }
     router.push("/");
   };
+
+  if (loading) return null; // пока грузится, не показываем Header
 
   const isLoggedIn = !!user;
 
   return (
     <>
       <header className="w-full h-14 flex justify-center border-b border-white/5">
-        <div className="
-          max-w-[1500px] w-full h-full px-4 sm:px-6
-          flex items-center justify-between
-          md:grid md:grid-cols-[auto_1fr_auto]
-        ">
+        <div className="max-w-[1500px] w-full h-full px-4 sm:px-6 flex items-center justify-between md:grid md:grid-cols-[auto_1fr_auto]">
           <div className="flex items-center gap-4 shrink-0">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -70,7 +63,7 @@ export default function Header() {
             </button>
 
             <Link href="/" className="flex items-center gap-4 shrink-0">
-              <Image src="/image/Frame.svg" alt="Logo" width={28} height={28} />
+              <Image src="/images/Frame.svg" alt="Logo" width={28} height={28} />
               <h1 className="md:inline text-white font-semibold text-lg">mKOLs</h1>
             </Link>
           </div>
@@ -84,9 +77,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center justify-end w-[120px]">
-            {!authChecked ? (
-              <div className="w-10 h-10" />
-            ) : isLoggedIn ? (
+            {isLoggedIn ? (
               <Dropdown avatarUrl={avatarUrl} onLogout={handleLogout} />
             ) : (
               <Button

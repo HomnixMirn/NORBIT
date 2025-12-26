@@ -19,6 +19,14 @@ def register(request: Request):
         password = data.get('password')
         password2 = data.get('password2')
         email = data.get('email')
+        is_seller = data.get('is_seller', False)
+
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        middle_name = data.get('middle_name', "")
+        address = data.get('address', "")
+        phone = data.get('phone', "")
+        contact_info = data.get('contact_info', "")
 
         if not all([login, password, password2, email]):
             return Response({"message": "Не все поля заполнены"}, status=status.HTTP_400_BAD_REQUEST)
@@ -26,44 +34,50 @@ def register(request: Request):
         if password != password2:
             return Response({"message": "Пароли не совпадают"}, status=status.HTTP_400_BAD_REQUEST)
 
+        if is_seller and (not first_name or not last_name or not address):
+            return Response({"message": "Для продавца обязательны Имя, Фамилия и Адрес"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             validate_email(email)
         except ValidationError:
             return Response({"message": "Некорректный email"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Проверка существующего пользователя
         user = User.objects.filter(email=email).first()
         if user:
             if user.is_active:
                 return Response({"message": "Пользователь уже существует"}, status=status.HTTP_200_OK)
             else:
-                # Повторная отправка кода для неактивного пользователя
                 code = generate_code()
                 EmailVerification.objects.update_or_create(user=user, defaults={"code": code})
-                try:
-                    send_verification_email(email, code)
-                except Exception as e:
-                    print("Ошибка отправки email:", e)
+                send_verification_email(email, code)
                 return Response({"message": "Код подтверждения отправлен повторно"}, status=status.HTTP_200_OK)
 
         # Создание нового пользователя
         user = User.objects.create_user(username=login, email=email, password=password)
         user.is_active = False
         user.save()
-        Profile.objects.create(user=user)
+
+        Profile.objects.create(
+            user=user,
+            is_seller=is_seller,
+            first_name=first_name if is_seller else None,
+            last_name=last_name if is_seller else None,
+            middle_name=middle_name if is_seller else None,
+            address=address if is_seller else None,
+            phone=phone if not is_seller else "",
+            contact_info=contact_info if not is_seller else "",
+        )
 
         code = generate_code()
         EmailVerification.objects.create(user=user, code=code)
-        try:
-            send_verification_email(email, code)
-        except Exception as e:
-            print("Ошибка отправки email:", e)
+        send_verification_email(email, code)
 
         return Response({"message": "Код подтверждения отправлен на почту"}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         print("Ошибка регистрации:", e)
         return Response({"message": "Ошибка регистрации"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 def login(request: Request):
     if request.method != 'POST':

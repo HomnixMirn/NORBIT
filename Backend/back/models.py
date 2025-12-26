@@ -48,12 +48,17 @@ class authorizedToken(Token):
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='profiles', null=True, blank=True)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True, related_name='profiles')
     email = models.EmailField(blank=True)
-    phone_number = models.CharField(max_length=15, blank=True)
+    phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    contact_info = models.TextField(blank=True, null=True)  # для покупателя
+    first_name = models.CharField(max_length=50, blank=True, null=True)  # для продавца
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    middle_name = models.CharField(max_length=50, blank=True, null=True)
     icon = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    is_seller = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.user.username
-    

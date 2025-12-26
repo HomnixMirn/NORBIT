@@ -18,7 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from back.views import register, login, logout, verify_email, personal_account, set_icon_profile_view
+from back.views import register, login, logout, verify_email, personal_account, set_icon_profile_view, update_profile_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,7 +27,8 @@ urlpatterns = [
     path('api/login', login),
     path('api/logout', logout),
     path('api/verify-email', verify_email),
-    path('api/set_icon_profile/', set_icon_profile_view, name='set_icon_profile')
+    path('api/set_icon_profile/', set_icon_profile_view, name='set_icon_profile'),
+    path('api/update_profile/', update_profile_view, name='update_profile')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

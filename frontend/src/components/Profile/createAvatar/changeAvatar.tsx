@@ -61,7 +61,7 @@ const AvatarUpload = ({ onClose }: LkProps) => {
         setSuccess("Аватарка успешно загружена");
         setError(null);
 
-        setAvatarUrl(MEDIA_URL + response.data.icon); // <-- обновляем контекст
+       setAvatarUrl(`${MEDIA_URL}${response.data.icon}?t=${Date.now()}`); // <-- обновляем контекст
 
         setTimeout(() => onClose(), 1000);
       } else {
